@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Aptitude AI - Infosys Prep</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#4F46E5', // Indigo 600
+                        secondary: '#818CF8', // Indigo 400
+                        dark: '#111827',
+                        light: '#F3F4F6',
+                        success: '#10B981',
+                        danger: '#EF4444',
+                        warning: '#F59E0B'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F3F4F6;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+        .slide-up {
+            animation: slideUp 0.6s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #818CF8; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4F46E5; 
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Style for pseudocode */
+        .pseudo-code {
+            background-color: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #4F46E5;
+            padding: 12px;
+            font-family: 'Courier New', Courier, monospace;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body class="text-gray-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- ================= SPLASH SCREEN (MODIFIED) ================= -->
+    <div id="splash-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-primary to-purple-700 text-white text-center px-4">
+        <div class="max-w-2xl w-full slide-up">
+            <div class="mb-6">
+                <i class="fa-solid fa-brain text-6xl mb-4 animate-pulse text-yellow-300"></i>
+                <h1 class="text-4xl md:text-6xl font-bold mb-2">Infosys Prep AI</h1>
+                <p class="text-indigo-200 text-lg">Your smart placement partner.</p>
+            </div>
+            
+            <div class="bg-white/10 backdrop-blur-md rounded-xl p-8 border border-white/20 shadow-2xl mb-8">
+                <h2 class="text-2xl font-semibold mb-4">Welcome, Future Innovator!</h2>
+                <p class="mb-6 text-indigo-100 leading-relaxed">
+                    This intelligent test is tailored to the **Infosys placement pattern**. It will test your logical, numerical, and verbal skills. 
+                    Trust your hard work and give it your best. Good luck!
+                </p>
+                <ul class="text-left text-sm space-y-3 mb-6 inline-block bg-black/20 p-4 rounded-lg">
+                    <li><i class="fa-regular fa-clock mr-2 text-yellow-300"></i> <strong>Duration:</strong> 30 Minutes</li>
+                    <li><i class="fa-solid fa-list-ol mr-2 text-yellow-300"></i> <strong>Questions:</strong> 50 Questions</li>
+                    <li><i class="fa-solid fa-puzzle-piece mr-2 text-yellow-300"></i> <strong>Focus:</strong> Logic, Quants & Verbal</li>
+                </ul>
+                <br>
+                <button onclick="startTest()" class="mt-4 bg-white text-primary hover:bg-gray-100 font-bold py-3 px-8 rounded-full shadow-lg transform transition hover:scale-105 active:scale-95">
+                    Start Assessment <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+            <p class="text-xs text-indigo-300 opacity-75">Generating Infosys-pattern question set...</p>
+        </div>
+    </div>
+
+    <!-- ================= TEST INTERFACE (Unchanged) ================= -->
+    <div id="test-interface" class="hidden h-full flex flex-col">
+        <!-- Header / Top Bar -->
+        <header class="bg-white shadow-sm z-10 px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-100 p-2 rounded-lg text-primary">
+                    <i class="fa-solid fa-brain"></i>
+                </div>
+                <span class="font-bold text-gray-700 hidden md:block">Infosys Prep</span>
+            </div>
+            
+            <!-- Timer -->
+            <div class="flex items-center bg-gray-100 px-4 py-2 rounded-full border border-gray-200">
+                <i class="fa-regular fa-clock text-gray-500 mr-2"></i>
+                <span id="timer-display" class="font-mono font-bold text-xl text-gray-800">30:00</span>
+            </div>
+
+            <div class="text-sm text-gray-500">
+                Q: <span id="current-q-num" class="font-bold text-primary">1</span>/50
+            </div>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 h-1.5">
+            <div id="progress-bar" class="bg-primary h-1.5 transition-all duration-300" style="width: 0%"></div>
+        </div>
+
+        <!-- Main Question Area -->
+        <main class="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-8 flex justify-center">
+            <div class="w-full max-w-3xl">
+                <!-- Question Card -->
+                <div id="question-card" class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 md:p-10 fade-in">
+                    <!-- Category Tag -->
+                    <span id="q-category" class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-600 mb-4 border border-indigo-100">
+                        Logical Reasoning
+                    </span>
+                    
+                    <!-- Question Text -->
+                    <h3 id="q-text" class="text-xl md:text-2xl font-medium text-gray-800 mb-8 leading-snug">
+                        Question text goes here...
+                    </h3>
+
+                    <!-- Options Grid -->
+                    <div id="options-container" class="grid grid-cols-1 gap-4">
+                        <!-- Options injected via JS -->
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer Controls -->
+        <footer class="bg-white border-t border-gray-200 p-4 md:px-8 flex justify-between items-center">
+            <button id="btn-prev" onclick="prevQuestion()" class="px-6 py-2 rounded-lg text-gray-500 hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium">
+                <i class="fa-solid fa-chevron-left mr-1"></i> Previous
+            </button>
+            
+            <!-- Navigation Dots (Mobile Hidden) -->
+            <div class="hidden md:flex gap-1 overflow-x-auto max-w-md px-2" id="nav-dots">
+                <!-- Dots injected JS -->
+            </div>
+
+            <button id="btn-next" onclick="nextQuestion()" class="px-6 py-2 rounded-lg bg-primary text-white hover:bg-indigo-700 shadow-md transition transform active:scale-95 font-medium">
+                Next <i class="fa-solid fa-chevron-right ml-1"></i>
+            </button>
+            
+            <button id="btn-submit" onclick="confirmSubmit()" class="hidden px-6 py-2 rounded-lg bg-success text-white hover:bg-green-600 shadow-md transition transform active:scale-95 font-medium">
+                Submit Test
+            </button>
+        </footer>
+    </div>
+
+    <!-- ================= RESULTS SCREEN (Unchanged) ================= -->
+    <div id="results-screen" class="hidden h-full flex-col bg-gray-50 overflow-y-auto">
+        <div class="max-w-5xl mx-auto w-full p-6">
+            
+            <!-- Header Results -->
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden mb-8">
+                <div class="bg-primary p-6 text-white text-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+                    <h2 class="text-3xl font-bold relative z-10">Assessment Complete!</h2>
+                    <p class="text-indigo-200 relative z-10 mt-1">Here is your performance analysis.</p>
+                </div>
+                
+                <div class="p-8 grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+                    <!-- Score Circle -->
+                    <div class="flex flex-col items-center justify-center">
+                        <div class="relative h-40 w-40">
+                            <canvas id="scoreChart"></canvas>
+                            <div class="absolute inset-0 flex items-center justify-center flex-col">
+                                <span id="final-score" class="text-4xl font-bold text-gray-800">0</span>
+                                <span class="text-xs text-gray-500 uppercase tracking-wider">Points</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Stats -->
+                    <div class="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-xl border text-center">
+                            <div class="text-gray-400 text-xs mb-1">Total Qs</div>
+                            <div class="text-xl font-bold text-gray-800">50</div>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-xl border border-green-100 text-center">
+                            <div class="text-green-600 text-xs mb-1">Correct</div>
+                            <div id="stat-correct" class="text-xl font-bold text-green-700">0</div>
+                        </div>
+                        <div class="bg-red-50 p-4 rounded-xl border border-red-100 text-center">
+                            <div class="text-red-600 text-xs mb-1">Incorrect</div>
+                            <div id="stat-wrong" class="text-xl font-bold text-red-700">0</div>
+                        </div>
+                        <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-100 text-center">
+                            <div class="text-yellow-600 text-xs mb-1">Skipped</div>
+                            <div id="stat-skipped" class="text-xl font-bold text-yellow-700">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <h3 class="text-2xl font-bold text-gray-800 mb-6 border-l-4 border-primary pl-3">Detailed AI Explanations</h3>
+            <div id="review-container" class="space-y-6 pb-12">
+                <!-- Review Items Injected Here -->
+            </div>
+
+            <div class="text-center pb-10">
+                <button onclick="location.reload()" class="bg-gray-800 text-white px-8 py-3 rounded-full hover:bg-black transition shadow-lg">
+                    <i class="fa-solid fa-rotate-right mr-2"></i> Take New Test
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Confirm Submit (Unchanged) -->
+    <div id="modal-overlay" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full m-4 shadow-2xl transform scale-100 transition-transform">
+            <h3 class="text-xl font-bold mb-2 text-gray-800">Submit Assessment?</h3>
+            <p class="text-gray-600 mb-6">You still have time remaining. Once submitted, you cannot change your answers.</p>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeModal()" class="px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100">Cancel</button>
+                <button onclick="finishTest()" class="px-4 py-2 rounded-lg bg-primary text-white hover:bg-indigo-700 shadow">Confirm Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= LOGIC (MODIFIED) ================= -->
+    <script>
+        // === CONFIG ===
+        const TOTAL_QUESTIONS = 50;
+        const TIME_LIMIT_MINUTES = 30;
+        
+        // === STATE ===
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = new Array(TOTAL_QUESTIONS).fill(null); // Stores index of selected option
+        let timerInterval;
+        let timeRemaining = TIME_LIMIT_MINUTES * 60;
+
+        // === QUESTION GENERATOR (The "AI" Part) ===
+        
+        // 1. Static Bank (Infosys-specific Logic, Verbal, Pseudo-code)
+        const staticQuestionBank = [
+            {
+                text: "Statements: \n1. All engineers are innovators. \n2. Some innovators are leaders. \nConclusions: \nI. All engineers are leaders. \nII. Some leaders are innovators.",
+                options: ["Only conclusion I follows", "Only conclusion II follows", "Both follow", "Neither follows"],
+                correct: 1,
+                category: "Syllogism",
+                explanation: "The Venn diagram shows 'Engineers' inside 'Innovators'. 'Leaders' overlaps with 'Innovators'. We can't be sure if 'Leaders' overlaps with 'Engineers', so I is false. But the overlap between 'Leaders' and 'Innovators' is given, so II is true."
+            },
+            {
+                text: "Find the output of the following pseudocode: \n<div class='pseudo-code'>Integer a = 5, b = 10, c = 0 \nc = a + b \na = c - a \nb = c - a \nprint c</div>",
+                options: ["15", "10", "5", "0"],
+                correct: 0,
+                category: "Pseudocode",
+                explanation: "1. c = a + b = 5 + 10 = 15. \n2. a = c - a = 15 - 5 = 10. \n3. b = c - a = 15 - 10 = 5. \n4. The code prints c, which is 15."
+            },
+            {
+                text: "Question: Is x > y? \nStatements: \nI. x + y = 10 \nII. x - y = 4",
+                options: ["Statement I alone is sufficient", "Statement II alone is sufficient", "Both statements together are sufficient", "Either statement alone is sufficient"],
+                correct: 2,
+                category: "Data Sufficiency",
+                explanation: "Statement I is not sufficient (x=5, y=5; or x=6, y=4). Statement II is not sufficient (x=6, y=2; or x=4, y=0). Together, we can solve the system of equations (x=7, y=3), which proves x > y. Both are needed."
+            },
+            {
+                text: "A is B's sister. C is B's mother. D is C's father. E is D's mother. How is A related to D?",
+                options: ["Grandfather", "Mother", "Granddaughter", "Daughter"],
+                correct: 2,
+                category: "Blood Relations",
+                explanation: "A is the sister of B. C is B's (and A's) mother. D is C's father. Therefore, D is the mother's father (maternal grandfather) of A. This makes A the Granddaughter of D."
+            },
+            {
+                text: "The company's new policies had a positive ______ on employee morale, ______ productivity.",
+                options: ["effect, boosting", "affect, boosting", "effect, boasting", "affect, boasting"],
+                correct: 0,
+                category: "Verbal Ability",
+                explanation: "'Effect' is a noun meaning 'a result'. 'Affect' is a verb meaning 'to influence'. 'Boosting' means 'to increase'. 'Boasting' means 'to brag'."
+            },
+            {
+                text: "He has not only violated (A) / the law but also (B) / he has broken the (C) / promise he made. (D)",
+                options: ["A", "B", "C", "D"],
+                correct: 2,
+                category: "Sentence Correction",
+                explanation: "The correct structure is 'not only... but also...'. When 'not only' is followed by a verb ('violated'), 'but also' should be followed by a verb ('broken'). The 'he has' in part (C) is redundant and breaks the parallel structure."
+            },
+            {
+                text: "Look at this series: 3, 4, 7, 8, 11, 12, ... What number should come next?",
+                options: ["15", "14", "16", "13"],
+                correct: 0,
+                category: "Number Series",
+                explanation: "This is an alternating series. The first pattern is +1 (3->4, 7->8, 11->12). The second pattern is +4 (4->7, 8->11). The next number follows the second pattern: 11 + 4 = 15."
+            },
+             {
+                text: "If 'CRYPTO' is coded as 'DSZQUO', how is 'BINARY' coded?",
+                options: ["CJOBSZ", "CJNBSZ", "DJOBSZ", "DJBNSZ"],
+                correct: 0,
+                category: "Coding-Decoding",
+                explanation: "Each letter is shifted forward by one (C->D, R->S, Y->Z, P->Q, T->U, O->P). Therefore, BINARY becomes CJOBSZ."
+            },
+            {
+                text: "A man walks 5 km East, then 5 km South. He then turns right and walks 5 km. In which direction is he from the starting point?",
+                options: ["South", "South-East", "South-West", "West"],
+                correct: 0,
+                category: "Direction Sense",
+                explanation: "He starts, goes East, then South. He is now South-East of the start. He turns RIGHT (which is West) and walks 5km. He is now directly South of his starting point."
+            },
+            {
+                text: "Find the odd one out.",
+                options: ["Monitor", "Mouse", "Printer", "Keyboard"],
+                correct: 2,
+                category: "Classification",
+                explanation: "Monitor, Mouse, and Keyboard are primarily input/output devices for interaction. A Printer is an output-only peripheral for creating hard copies. (Alternatively, Monitor/Printer are output, Mouse/Keyboard are input, making this ambiguous, but Printer is the most common 'odd one out' as a non-core-interaction device)."
+            }
+        ];
+
+        // 2. Procedural Generator (Infosys-level Quants)
+        function generateProceduralQuestion() {
+            const type = Math.floor(Math.random() * 5);
+            let q = {};
+
+            if (type === 0) {
+                // Profit & Loss
+                const cp = (Math.floor(Math.random() * 50) + 10) * 10; // 100, 110... 600
+                const profitPercent = (Math.floor(Math.random() * 5) + 1) * 5; // 5, 10, 15, 20, 25
+                const sp = cp + (cp * profitPercent / 100);
+                const ans = sp;
+                q = {
+                    text: `An article is purchased for $${cp}. At what price should it be sold to gain a profit of ${profitPercent}%?`,
+                    options: [ans, ans + 10, ans - 10, cp + profitPercent].sort(() => Math.random() - 0.5).map(String),
+                    category: "Profit & Loss",
+                    explanation: `Selling Price (SP) = Cost Price (CP) + Profit. Profit = ${profitPercent}% of ${cp} = ${cp * profitPercent / 100}. SP = ${cp} + ${cp * profitPercent / 100} = ${ans}.`
+                };
+                q.correct = q.options.indexOf(String(ans));
+            } else if (type === 1) {
+                // Time & Work
+                const aDays = (Math.floor(Math.random() * 5) + 1) * 10; // 10, 20, 30, 40, 50
+                const bDays = (Math.floor(Math.random() * 5) + 1) * 10; // 10, 20, 30, 40, 50
+                const ans = (aDays * bDays) / (aDays + bDays);
+                const ansRounded = parseFloat(ans.toFixed(2));
+                q = {
+                    text: `A can do a job in ${aDays} days and B can do the same job in ${bDays} days. In how many days can they complete the job if they work together?`,
+                    options: [ansRounded, ansRounded + 1, parseFloat((ans - 2).toFixed(2)), (aDays+bDays)/2].sort(() => Math.random() - 0.5).map(String),
+                    category: "Time & Work",
+                    explanation: `A's 1 day work = 1/${aDays}. B's 1 day work = 1/${bDays}. (A+B)'s 1 day work = 1/${aDays} + 1/${bDays} = (${aDays}+${bDays})/${aDays*bDays}. Total days = ${aDays*bDays}/(${aDays}+${bDays}) = ${ansRounded}.`
+                };
+                q.correct = q.options.indexOf(String(ansRounded));
+            } else if (type === 2) {
+                // Time, Speed, Distance (Train)
+                const speedKmph = (Math.floor(Math.random() * 5) + 5) * 10; // 50, 60... 90
+                const timeSec = (Math.floor(Math.random() * 10) + 9); // 9... 18
+                const speedMps = speedKmph * 5 / 18;
+                const ans = speedMps * timeSec;
+                const ansRounded = parseFloat(ans.toFixed(1));
+                q = {
+                    text: `A train running at ${speedKmph} km/hr crosses a pole in ${timeSec} seconds. What is the length of the train in meters?`,
+                    options: [ansRounded, ansRounded + 20, ansRounded - 10, speedKmph * timeSec / 100].sort(() => Math.random() - 0.5).map(v => parseFloat(v.toFixed(1))).map(String),
+                    category: "Time, Speed, Distance",
+                    explanation: `Speed in m/s = ${speedKmph} * (5/18) = ${speedMps.toFixed(2)} m/s. Length = Speed * Time = ${speedMps.toFixed(2)} * ${timeSec} = ${ansRounded} meters.`
+                };
+                q.correct = q.options.indexOf(String(ansRounded));
+            } else if (type === 3) {
+                // Averages
+                const n1 = Math.floor(Math.random() * 10) + 10; // 10..19
+                const n2 = n1 + (Math.floor(Math.random() * 5) + 1);
+                const n3 = n1 + (Math.floor(Math.random() * 5) + 6);
+                const ans = (n1 + n2 + n3) / 3;
+                const ansRounded = parseFloat(ans.toFixed(2));
+                q = {
+                    text: `What is the average of ${n1}, ${n2}, and ${n3}?`,
+                    options: [ansRounded, ansRounded + 1, ansRounded - 1, (n1+n2+n3)].sort(() => Math.random() - 0.5).map(String),
+                    category: "Averages",
+                    explanation: `Average = (Sum of numbers) / (Count of numbers) = (${n1} + ${n2} + ${n3}) / 3 = ${ansRounded}.`
+                };
+                q.correct = q.options.indexOf(String(ansRounded));
+            } else {
+                // Permutations
+                const n = Math.floor(Math.random() * 3) + 4; // 4, 5, 6
+                let ans = 1;
+                for(let i=1; i<=n; i++) ans *= i; // n!
+                
+                q = {
+                    text: `In how many different ways can ${n} books be arranged on a shelf?`,
+                    options: [ans, ans / n, ans * 2, ans - n].sort(() => Math.random() - 0.5).map(String),
+                    category: "Permutations",
+                    explanation: `This is a permutation of ${n} items. The number of ways is ${n}! (n-factorial) = ${n} * ${n-1} * ... * 1 = ${ans}.`
+                };
+                q.correct = q.options.indexOf(String(ans));
+            }
+            return q;
+        }
+
+        function initQuestions() {
+            questions = [];
+            // 1. Add random selection from static bank (shuffle static bank first)
+            const shuffledStatic = [...staticQuestionBank].sort(() => Math.random() - 0.5);
+            questions.push(...shuffledStatic);
+
+            // 2. Fill the rest up to TOTAL_QUESTIONS with generated math
+            while (questions.length < TOTAL_QUESTIONS) {
+                questions.push(generateProceduralQuestion());
+            }
+            
+            // 3. Final Shuffle to mix Math and Verbal
+            questions = questions.sort(() => Math.random() - 0.5);
+        }
+
+        // === APP LOGIC ===
+
+        function startTest() {
+            initQuestions();
+            document.getElementById('splash-screen').classList.add('hidden');
+            document.getElementById('test-interface').classList.remove('hidden');
+            renderNavDots();
+            loadQuestion(0);
+            startTimer();
+        }
+
+        function startTimer() {
+            const display = document.getElementById('timer-display');
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                const m = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+                const s = (timeRemaining % 60).toString().padStart(2, '0');
+                display.textContent = `${m}:${s}`;
+
+                if (timeRemaining <= 300) { // Last 5 mins
+                    display.classList.add('text-red-600');
+                    display.classList.add('animate-pulse');
+                }
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    finishTest(true); // true indicates forced finish
+                }
+            }, 1000);
+        }
+
+        function loadQuestion(index) {
+            currentQuestionIndex = index;
+            const q = questions[index];
+            
+            // Update UI Elements
+            document.getElementById('current-q-num').innerText = index + 1;
+            document.getElementById('progress-bar').style.width = `${((index + 1) / TOTAL_QUESTIONS) * 100}%`;
+            document.getElementById('q-category').innerText = q.category;
+            document.getElementById('q-text').innerHTML = q.text; // Use .innerHTML to render pseudocode block
+            
+            // Render Options
+            const optsContainer = document.getElementById('options-container');
+            optsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('div');
+                // Check if previously selected
+                const isSelected = userAnswers[index] === i;
+                
+                btn.className = `p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 flex items-center group ${isSelected ? 'border-primary bg-indigo-50' : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50'}`;
+                btn.onclick = () => selectOption(i);
+                
+                btn.innerHTML = `
+                    <div class="h-6 w-6 rounded-full border-2 flex items-center justify-center mr-4 ${isSelected ? 'border-primary bg-primary' : 'border-gray-300 group-hover:border-indigo-400'}">
+                        <div class="h-2 w-2 rounded-full bg-white ${isSelected ? 'opacity-100' : 'opacity-0'}"></div>
+                    </div>
+                    <span class="text-lg text-gray-700 font-medium">${opt}</span>
+                `;
+                optsContainer.appendChild(btn);
+            });
+
+            // Button State
+            document.getElementById('btn-prev').disabled = index === 0;
+            
+            const nextBtn = document.getElementById('btn-next');
+            const submitBtn = document.getElementById('btn-submit');
+            
+            if (index === TOTAL_QUESTIONS - 1) {
+                nextBtn.classList.add('hidden');
+                submitBtn.classList.remove('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+                submitBtn.classList.add('hidden');
+            }
+
+            // Update Nav Dots
+            updateNavDots();
+        }
+
+        function selectOption(optionIndex) {
+            userAnswers[currentQuestionIndex] = optionIndex;
+            loadQuestion(currentQuestionIndex); // Re-render to show selection
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < TOTAL_QUESTIONS - 1) {
+                loadQuestion(currentQuestionIndex + 1);
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                loadQuestion(currentQuestionIndex - 1);
+            }
+        }
+
+        // Navigation Dots Logic
+        function renderNavDots() {
+            const container = document.getElementById('nav-dots');
+            container.innerHTML = '';
+            // Only show dots for small ranges to avoid clutter, or just show simple counts
+            // For 50 questions, individual dots are too small. 
+            // Let's render a mini visualizer
+            for(let i=0; i<TOTAL_QUESTIONS; i++) {
+                const dot = document.createElement('div');
+                dot.id = `dot-${i}`;
+                dot.className = `h-2 w-2 rounded-full flex-shrink-0 bg-gray-300 transition-colors`;
+                container.appendChild(dot);
+            }
+        }
+
+        function updateNavDots() {
+            for(let i=0; i<TOTAL_QUESTIONS; i++) {
+                const dot = document.getElementById(`dot-${i}`);
+                if(i === currentQuestionIndex) {
+                    dot.className = `h-2 w-2 rounded-full flex-shrink-0 bg-primary scale-125`;
+                } else if (userAnswers[i] !== null) {
+                    dot.className = `h-2 w-2 rounded-full flex-shrink-0 bg-indigo-400`;
+                } else {
+                    dot.className = `h-2 w-2 rounded-full flex-shrink-0 bg-gray-300`;
+                }
+            }
+        }
+
+        function confirmSubmit() {
+            document.getElementById('modal-overlay').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.add('hidden');
+        }
+
+        function finishTest(forced = false) {
+            clearInterval(timerInterval);
+            closeModal();
+            
+            document.getElementById('test-interface').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('hidden');
+            document.getElementById('results-screen').classList.add('flex'); // Change from hidden to flex
+
+            calculateResults();
+        }
+
+        function calculateResults() {
+            let score = 0;
+            let correctCount = 0;
+            let wrongCount = 0;
+            let skippedCount = 0;
+            
+            const reviewContainer = document.getElementById('review-container');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const userAns = userAnswers[index];
+                let status = 'skipped';
+                
+                if (userAns === null) {
+                    skippedCount++;
+                } else if (userAns === q.correct) {
+                    score += 1; // Assuming 1 point per question
+                    correctCount++;
+                    status = 'correct';
+                } else {
+                    wrongCount++;
+                    status = 'wrong';
+                }
+
+                // Generate Review Card
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-xl shadow-sm border border-gray-200 transition hover:shadow-md";
+                
+                const userAnsText = userAns !== null ? q.options[userAns] : "Skipped";
+                const correctAnsText = q.options[q.correct];
+                
+                let badgeClass = "";
+                let badgeText = "";
+                
+                if(status === 'correct') {
+                    badgeClass = "bg-green-100 text-green-700 border-green-200";
+                    badgeText = '<i class="fa-solid fa-check mr-1"></i> Correct';
+                } else if (status === 'wrong') {
+                    badgeClass = "bg-red-100 text-red-700 border-red-200";
+                    badgeText = '<i class="fa-solid fa-xmark mr-1"></i> Incorrect';
+                } else {
+                    badgeClass = "bg-yellow-100 text-yellow-700 border-yellow-200";
+                    badgeText = '<i class="fa-solid fa-minus mr-1"></i> Skipped';
+                }
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-gray-800 text-white h-8 w-8 flex items-center justify-center rounded-full font-bold text-sm">${index + 1}</span>
+                            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide border px-2 py-1 rounded">${q.category}</span>
+                        </div>
+                        <div class="px-3 py-1 rounded-full text-xs font-bold border ${badgeClass}">
+                            ${badgeText}
+                        </div>
+                    </div>
+                    
+                    <h4 class="text-lg font-medium text-gray-800 mb-4">${q.text}</h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="p-3 rounded-lg bg-gray-50 border ${status === 'correct' ? 'border-green-300 bg-green-50' : (status === 'wrong' ? 'border-red-300 bg-red-50' : 'border-gray-200')}">
+                            <p class="text-xs text-gray-500 mb-1">Your Answer</p>
+                            <p class="font-medium text-gray-800">${userAnsText}</p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-green-50 border border-green-200">
+                            <p class="text-xs text-green-600 mb-1">Correct Answer</p>
+                            <p class="font-medium text-green-800">${correctAnsText}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-indigo-50 p-4 rounded-lg border-l-4 border-indigo-400">
+                        <p class="text-xs font-bold text-indigo-500 uppercase mb-1"><i class="fa-solid fa-lightbulb mr-1"></i> AI Explanation</p>
+                        <p class="text-sm text-gray-700">${q.explanation}</p>
+                    </div>
+                `;
+                reviewContainer.appendChild(card);
+            });
+
+            // Update Stats UI
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('stat-correct').innerText = correctCount;
+            document.getElementById('stat-wrong').innerText = wrongCount;
+            document.getElementById('stat-skipped').innerText = skippedCount;
+
+            // Render Chart
+            renderChart(correctCount, wrongCount, skippedCount);
+        }
+
+        function renderChart(correct, wrong, skipped) {
+            const ctx = document.getElementById('scoreChart').getContext('2d');
+            if(window.myDoughnutChart) {
+                window.myDoughnutChart.destroy();
+            }
+            
+            window.myDoughnutChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Correct', 'Incorrect', 'Skipped'],
+                    datasets: [{
+                        data: [correct, wrong, skipped],
+                        backgroundColor: ['#10B981', '#EF4444', '#F59E0B'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>
