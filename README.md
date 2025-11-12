@@ -2,6 +2,10 @@
 
 This repository contains preparation material for the Infosys aptitude test.
 
+## Developer
+
+**Akshay** - [Akshay-Notfound](https://github.com/Akshay-Notfound)
+
 ## Contents
 
 - [aptitude.html](aptitude.html) - Comprehensive aptitude test preparation material
@@ -28,5 +32,9 @@ This project is configured for deployment to Vercel:
 Feel free to fork this repository and submit pull requests with additional aptitude questions or improvements to existing content.
 
 ## License
+
+Copyright (c) 2025 Akshay
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 This project is for educational purposes to help candidates prepare for the Infosys recruitment process.
